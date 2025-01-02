@@ -47,6 +47,7 @@ export interface SelectProps {
   triggerDescriptionLastSeparator?: string
   selectWidth?: number
   animate?: boolean
+  useShadcnStyle?: boolean
 }
 
 export function Select({
@@ -70,6 +71,7 @@ export function Select({
   triggerDescriptionLastSeparator,
   selectWidth = 300,
   animate = true,
+  useShadcnStyle = true,
 }: SelectProps) {
   const [open, setOpen] = useState(false)
 
@@ -155,7 +157,8 @@ export function Select({
   }: ComponentPropsWithoutRef<typeof CommandPrimitive.Group>) => (
     <CommandPrimitive.Group
       className={cn(
-        'overflow-hidden p-1 text-gray-950 dark:text-gray-50 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 dark:[&_[cmdk-group-heading]]:text-gray-400',
+        useShadcnStyle &&
+          'overflow-hidden p-1 text-gray-950 dark:text-gray-50 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 dark:[&_[cmdk-group-heading]]:text-gray-400',
         className,
       )}
       {...props}
@@ -178,7 +181,9 @@ export function Select({
       value={`${label} ${value}`}
       onSelect={() => handleSelect(value)}
       className={cn(
-        'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-all duration-100 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 data-[disabled=true]:opacity-50 dark:data-[selected=true]:bg-gray-900/70 dark:data-[selected=true]:text-gray-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+        'flex select-none',
+        useShadcnStyle &&
+          'relative cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-all duration-100 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 data-[disabled=true]:opacity-50 dark:data-[selected=true]:bg-gray-900/70 dark:data-[selected=true]:text-gray-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
         selected && 'bg-gray-200/70 dark:bg-gray-900',
         className,
       )}
@@ -209,7 +214,9 @@ export function Select({
           aria-expanded={open}
           aria-controls="select"
           className={cn(
-            'flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm font-normal shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/50 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+            'flex h-9 w-full items-center justify-center gap-2',
+            useShadcnStyle &&
+              'whitespace-nowrap rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm font-normal shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/50 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
             !selected?.length &&
               'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
           )}
@@ -234,7 +241,8 @@ export function Select({
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           className={cn(
-            'z-50 rounded-md border border-gray-200 bg-white p-0 text-gray-950 shadow-md outline-none dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50',
+            useShadcnStyle &&
+              'z-50 rounded-md border border-gray-200 bg-white p-0 text-gray-950 shadow-md outline-none dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50',
             animate &&
               'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           )}
@@ -245,7 +253,8 @@ export function Select({
         >
           <CommandPrimitive
             className={cn(
-              'flex h-full w-full flex-col overflow-hidden rounded-md bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50',
+              useShadcnStyle &&
+                'flex h-full w-full flex-col overflow-hidden rounded-md bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50',
             )}
           >
             {useSearch && (
@@ -258,7 +267,8 @@ export function Select({
                 <CommandPrimitive.Input
                   placeholder={searchPlaceholder}
                   className={cn(
-                    'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
+                    useShadcnStyle &&
+                      'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
                   )}
                 />
               </div>
