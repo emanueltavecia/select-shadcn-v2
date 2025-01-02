@@ -77,7 +77,7 @@ export function ExamplePage() {
         allowNoSelection={true}
         allIcon={<AArrowUp />}
         selectIcon={<BookDownIcon />}
-        searchPlaceholder="g"
+        searchPlaceholder="Search..."
         useSearch
       />
 
@@ -95,8 +95,9 @@ export function ExamplePage() {
         allowNoSelection={true}
         allIcon={<AArrowUp />}
         selectIcon={<BookDownIcon />}
-        searchPlaceholder="g"
+        searchPlaceholder="Search..."
         useSearch
+        animate={false}
       />
     </div>
   )
