@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, MouseEvent } from 'react'
+import { useState, useMemo, useEffect, MouseEvent, ReactNode } from 'react'
 
 import { Check, ChevronDown, X } from 'lucide-react'
 
@@ -17,9 +17,10 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 import { cn } from '../lib/utils'
 
-export interface Option {
+export type Option<T = unknown> = T & {
   value: string
   label: string
+  icon?: ReactNode
 }
 
 export interface SelectProps {
@@ -32,8 +33,10 @@ export interface SelectProps {
   useAll?: boolean
   allDescription?: string
   allSelectedDescription?: string
+  allIcon?: ReactNode
+  selectIcon?: ReactNode
   searchPlaceholder?: string
-  emptyMessage?: string
+  emptyMessage?: string | ReactNode
   placeholder: string
   allowNoSelection?: boolean
   triggerDescriptionSeparator?: string
@@ -50,6 +53,8 @@ export function Select({
   useAll = false,
   allDescription = 'Select All',
   allSelectedDescription,
+  allIcon,
+  selectIcon,
   searchPlaceholder,
   emptyMessage = 'No options found',
   placeholder = 'Select...',
@@ -136,7 +141,8 @@ export function Select({
               'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
           )}
         >
-          <span className="w-full max-w-[92%] overflow-hidden text-ellipsis text-nowrap text-left">
+          {selectIcon}
+          <span className="w-full overflow-hidden text-ellipsis text-nowrap text-left">
             {getTriggerDescription()}
           </span>
           {selected?.length && useClear ? (
@@ -151,7 +157,7 @@ export function Select({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start" id="select">
+      <PopoverContent className="w-full p-0" align="start" id="select">
         <Command>
           {searchPlaceholder && (
             <CommandInput placeholder={searchPlaceholder} />
@@ -168,7 +174,8 @@ export function Select({
                     isAllSelected && 'bg-gray-200/70 dark:bg-gray-900',
                   )}
                 >
-                  {allDescription}
+                  {allIcon}
+                  <span className="w-full text-left">{allDescription}</span>
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
@@ -190,7 +197,8 @@ export function Select({
                     (i || useAll) && 'mt-1',
                   )}
                 >
-                  {option.label}
+                  {option.icon}
+                  <span className="w-full text-left">{option.label}</span>
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
