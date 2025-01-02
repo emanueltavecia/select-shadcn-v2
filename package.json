@@ -1,11 +1,13 @@
 {
   "name": "select-shadcn-v2",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.4",
+  "main": "dist/select-shadcn-v2.es.js",
+  "types": "dist/select-shadcn-v2.d.ts",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "prettier --write ./src && eslint . --fix && echo \"\\033[32m✔ No ESLint warnings or errors\\033[0m\"",
     "preview": "vite preview"
   },
@@ -18,7 +20,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vite-plugin-dts": "^4.4.0"
   },
   "devDependencies": {
     "@emanueltavecia/eslint-config": "^1.0.4",
@@ -35,7 +38,7 @@
     "postcss": "^8.4.49",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2",
+    "typescript": "5.4.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5"
   }
