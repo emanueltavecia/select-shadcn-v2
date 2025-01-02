@@ -23,8 +23,13 @@ export type Option<T = unknown> = T & {
   icon?: ReactNode
 }
 
+export type OptionsGrouped<T = unknown> = {
+  groupName: string
+  options: Option<T>[]
+}
+
 export interface SelectProps {
-  options: Option[]
+  options: (Option | OptionsGrouped)[]
   selected: string[] | undefined
   onSelect: (value: string[]) => void
   setIsAllSelected?: (isAllSelected: boolean) => void
@@ -35,6 +40,7 @@ export interface SelectProps {
   allSelectedDescription?: string
   allIcon?: ReactNode
   selectIcon?: ReactNode
+  useSearch?: boolean
   searchPlaceholder?: string
   emptyMessage?: string | ReactNode
   placeholder: string
@@ -49,13 +55,14 @@ export function Select({
   selected,
   onSelect,
   setIsAllSelected,
-  multiple = false,
-  useClear = false,
-  useAll = false,
+  multiple,
+  useClear,
+  useAll,
   allDescription = 'Select All',
   allSelectedDescription,
   allIcon,
   selectIcon,
+  useSearch,
   searchPlaceholder,
   emptyMessage = 'No options found',
   placeholder = 'Select...',
@@ -66,16 +73,22 @@ export function Select({
 }: SelectProps) {
   const [open, setOpen] = useState(false)
 
-  const isAllSelected: boolean = useMemo(() => {
-    return (
-      selected?.length === options.length ||
-      selected?.some((selected) => selected === 'ALL') ||
-      false
+  const flattenedOptions = useMemo(() => {
+    return options.flatMap((option) =>
+      'groupName' in option ? option.options : [option],
     )
-  }, [selected, options])
+  }, [options])
+
+  const isAllSelected: boolean = useMemo(() => {
+    if (useAll && selected?.includes('ALL')) {
+      return true
+    }
+    const allOptionValues = flattenedOptions.map((opt) => opt.value)
+    return selected?.length === allOptionValues.length
+  }, [useAll, selected, flattenedOptions])
 
   const getTriggerDescription = () => {
-    const formattedOptions = options
+    const formattedOptions = flattenedOptions
       .filter((option) => selected?.includes(option.value))
       .map((option) => option.label)
 
@@ -99,16 +112,22 @@ export function Select({
 
   const handleSelect = (value: string) => {
     if (!multiple) {
-      onSelect([value])
+      if (!allowNoSelection && selected?.includes(value)) {
+        return
+      }
+      const newSelected = selected?.includes(value) ? [] : [value]
+      onSelect(newSelected)
       setOpen(false)
       return
     }
 
     if (value === 'ALL') {
       if (isAllSelected) {
-        onSelect([])
+        if (allowNoSelection) {
+          onSelect([])
+        }
       } else {
-        onSelect(options.map((opt) => opt.value))
+        onSelect(flattenedOptions.map((opt) => opt.value))
       }
     } else {
       const isSelected = selected?.includes(value)
@@ -117,7 +136,7 @@ export function Select({
         : [...(selected || []), value]
 
       if (!allowNoSelection && newSelected?.length === 0) {
-        onSelect(options.map((opt) => opt.value))
+        onSelect(flattenedOptions.map((opt) => opt.value))
       } else {
         onSelect(newSelected || [])
       }
@@ -129,6 +148,45 @@ export function Select({
     onSelect([])
     setOpen(false)
   }
+
+  const allOption = (
+    <CommandItem
+      value={`${allDescription} ALL`}
+      onSelect={() => handleSelect('ALL')}
+      className={cn(
+        'justify-between',
+        isAllSelected && 'bg-gray-200/70 dark:bg-gray-900',
+      )}
+    >
+      {allIcon}
+      <span className="w-full text-left">{allDescription}</span>
+      <Check
+        className={cn('h-4 w-4', isAllSelected ? 'opacity-100' : 'opacity-0')}
+      />
+    </CommandItem>
+  )
+
+  const OptionItem = ({ value, label, icon, i }: Option & { i: number }) => (
+    <CommandItem
+      key={value}
+      value={`${label} ${value}`}
+      onSelect={() => handleSelect(value)}
+      className={cn(
+        'justify-between',
+        selected?.includes(value) && 'bg-gray-200/70 dark:bg-gray-900',
+        (i || useAll) && 'mt-1',
+      )}
+    >
+      {icon}
+      <span className="w-full text-left">{label}</span>
+      <Check
+        className={cn(
+          'h-4 w-4',
+          selected?.includes(value) ? 'opacity-100' : 'opacity-0',
+        )}
+      />
+    </CommandItem>
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -166,57 +224,51 @@ export function Select({
         style={{ width: selectWidth }}
       >
         <Command>
-          {searchPlaceholder && (
-            <CommandInput placeholder={searchPlaceholder} />
-          )}
+          {useSearch && <CommandInput placeholder={searchPlaceholder} />}
+
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
-            <CommandGroup>
-              {useAll && (
-                <CommandItem
-                  value="ALL"
-                  onSelect={() => handleSelect('ALL')}
-                  className={cn(
-                    'justify-between',
-                    isAllSelected && 'bg-gray-200/70 dark:bg-gray-900',
-                  )}
-                >
-                  {allIcon}
-                  <span className="w-full text-left">{allDescription}</span>
-                  <Check
-                    className={cn(
-                      'mr-2 h-4 w-4',
-                      isAllSelected ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                </CommandItem>
-              )}
 
-              {options.map((option, i) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={() => handleSelect(option.value)}
-                  className={cn(
-                    'justify-between',
-                    selected?.includes(option.value) &&
-                      'bg-gray-200/70 dark:bg-gray-900',
-                    (i || useAll) && 'mt-1',
-                  )}
-                >
-                  {option.icon}
-                  <span className="w-full text-left">{option.label}</span>
-                  <Check
-                    className={cn(
-                      'mr-2 h-4 w-4',
-                      selected?.includes(option.value)
-                        ? 'opacity-100'
-                        : 'opacity-0',
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {options.every((option) => 'groupName' in option) ? (
+              <>
+                {useAll && <CommandGroup>{allOption}</CommandGroup>}
+
+                {options.map((option, i) => (
+                  <CommandGroup
+                    key={i}
+                    heading={option.groupName}
+                    className={cn(!i && 'pt-0')}
+                  >
+                    {option.options.map((groupedOption, i) => (
+                      <OptionItem
+                        key={groupedOption.value}
+                        value={groupedOption.value}
+                        label={groupedOption.label}
+                        icon={groupedOption.icon}
+                        i={i}
+                      />
+                    ))}
+                  </CommandGroup>
+                ))}
+              </>
+            ) : (
+              <CommandGroup>
+                {useAll && allOption}
+
+                {options.map(
+                  (option, i) =>
+                    !('groupName' in option) && (
+                      <OptionItem
+                        key={option.value}
+                        value={option.value}
+                        label={option.label}
+                        icon={option.icon}
+                        i={i}
+                      />
+                    ),
+                )}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
