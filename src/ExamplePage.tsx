@@ -98,6 +98,7 @@ export function ExamplePage() {
         searchPlaceholder="Search..."
         useSearch
         animate={false}
+        useShadcnStyle={false}
       />
     </div>
   )
