@@ -1,19 +1,17 @@
 'use client'
 
-import { useState, useMemo, useEffect, MouseEvent, ReactNode } from 'react'
-
-import { Check, ChevronDown, X } from 'lucide-react'
-
-import { Button } from './ui/button'
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from './ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+  useState,
+  useMemo,
+  useEffect,
+  MouseEvent,
+  ReactNode,
+  ComponentPropsWithoutRef,
+} from 'react'
+
+import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { Command as CommandPrimitive } from 'cmdk'
+import { Check, ChevronDown, X, Search } from 'lucide-react'
 
 import { cn } from '../lib/utils'
 
@@ -149,54 +147,67 @@ export function Select({
     setOpen(false)
   }
 
-  const allOption = (
-    <CommandItem
-      value={`${allDescription} ALL`}
-      onSelect={() => handleSelect('ALL')}
+  const Group = ({
+    className,
+    ...props
+  }: ComponentPropsWithoutRef<typeof CommandPrimitive.Group>) => (
+    <CommandPrimitive.Group
       className={cn(
-        'justify-between',
-        isAllSelected && 'bg-gray-200/70 dark:bg-gray-900',
+        'overflow-hidden p-1 text-gray-950 dark:text-gray-50 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 dark:[&_[cmdk-group-heading]]:text-gray-400',
+        className,
       )}
-    >
-      {allIcon}
-      <span className="w-full text-left">{allDescription}</span>
-      <Check
-        className={cn('h-4 w-4', isAllSelected ? 'opacity-100' : 'opacity-0')}
-      />
-    </CommandItem>
+      {...props}
+    />
   )
 
-  const OptionItem = ({ value, label, icon, i }: Option & { i: number }) => (
-    <CommandItem
+  const Item = ({
+    value,
+    label,
+    icon,
+    className,
+    selected,
+    ...props
+  }: Option &
+    ComponentPropsWithoutRef<typeof CommandPrimitive.Item> & {
+      selected: boolean | undefined
+    }) => (
+    <CommandPrimitive.Item
       key={value}
       value={`${label} ${value}`}
       onSelect={() => handleSelect(value)}
       className={cn(
-        'justify-between',
-        selected?.includes(value) && 'bg-gray-200/70 dark:bg-gray-900',
-        (i || useAll) && 'mt-1',
+        'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-all duration-100 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 data-[disabled=true]:opacity-50 dark:data-[selected=true]:bg-gray-900/70 dark:data-[selected=true]:text-gray-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+        selected && 'bg-gray-200/70 dark:bg-gray-900',
+        className,
       )}
+      {...props}
     >
       {icon}
       <span className="w-full text-left">{label}</span>
       <Check
-        className={cn(
-          'h-4 w-4',
-          selected?.includes(value) ? 'opacity-100' : 'opacity-0',
-        )}
+        className={cn('h-4 w-4', selected ? 'opacity-100' : 'opacity-0')}
       />
-    </CommandItem>
+    </CommandPrimitive.Item>
+  )
+
+  const allOption = (
+    <Item
+      value="ALL"
+      label={allDescription}
+      icon={allIcon}
+      selected={isAllSelected}
+    />
   )
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
+    <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
+      <PopoverPrimitive.Trigger asChild>
+        <button
           role="combobox"
           aria-expanded={open}
+          aria-controls="select"
           className={cn(
-            'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm font-normal shadow-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:hover:bg-gray-900/50',
+            'flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm font-normal shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/50 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
             !selected?.length &&
               'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
           )}
@@ -215,63 +226,91 @@ export function Select({
           ) : (
             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
           )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="p-0"
-        align="start"
-        id="select"
-        style={{ width: selectWidth }}
-      >
-        <Command>
-          {useSearch && <CommandInput placeholder={searchPlaceholder} />}
+        </button>
+      </PopoverPrimitive.Trigger>
 
-          <CommandList>
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
-
-            {options.every((option) => 'groupName' in option) ? (
-              <>
-                {useAll && <CommandGroup>{allOption}</CommandGroup>}
-
-                {options.map((option, i) => (
-                  <CommandGroup
-                    key={i}
-                    heading={option.groupName}
-                    className={cn(!i && 'pt-0')}
-                  >
-                    {option.options.map((groupedOption, i) => (
-                      <OptionItem
-                        key={groupedOption.value}
-                        value={groupedOption.value}
-                        label={groupedOption.label}
-                        icon={groupedOption.icon}
-                        i={i}
-                      />
-                    ))}
-                  </CommandGroup>
-                ))}
-              </>
-            ) : (
-              <CommandGroup>
-                {useAll && allOption}
-
-                {options.map(
-                  (option, i) =>
-                    !('groupName' in option) && (
-                      <OptionItem
-                        key={option.value}
-                        value={option.value}
-                        label={option.label}
-                        icon={option.icon}
-                        i={i}
-                      />
-                    ),
-                )}
-              </CommandGroup>
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          className="z-50 w-72 rounded-md border border-gray-200 bg-white p-0 text-gray-950 shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50"
+          align="start"
+          sideOffset={4}
+          id="select"
+          style={{ width: selectWidth }}
+        >
+          <CommandPrimitive
+            className={cn(
+              'flex h-full w-full flex-col overflow-hidden rounded-md bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50',
             )}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+          >
+            {useSearch && (
+              <div
+                className="flex items-center border-b px-3 dark:border-gray-800"
+                // eslint-disable-next-line react/no-unknown-property
+                cmdk-input-wrapper=""
+              >
+                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                <CommandPrimitive.Input
+                  placeholder={searchPlaceholder}
+                  className={cn(
+                    'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
+                  )}
+                />
+              </div>
+            )}
+
+            <CommandPrimitive.List
+              className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden')}
+            >
+              <CommandPrimitive.Empty className="pb-5 pt-6 text-center text-sm">
+                {emptyMessage}
+              </CommandPrimitive.Empty>
+
+              {options.every((option) => 'groupName' in option) ? (
+                <>
+                  {useAll && <Group>{allOption}</Group>}
+
+                  {options.map((option, i) => (
+                    <Group
+                      key={i}
+                      heading={option.groupName}
+                      className={cn(!i && 'pt-0')}
+                    >
+                      {option.options.map((groupedOption, i) => (
+                        <Item
+                          key={groupedOption.value}
+                          value={groupedOption.value}
+                          label={groupedOption.label}
+                          icon={groupedOption.icon}
+                          className={cn((i || useAll) && 'mt-1')}
+                          selected={selected?.includes(groupedOption.value)}
+                        />
+                      ))}
+                    </Group>
+                  ))}
+                </>
+              ) : (
+                <Group>
+                  {useAll && allOption}
+
+                  {options.map(
+                    (option, i) =>
+                      !('groupName' in option) && (
+                        <Item
+                          key={option.value}
+                          value={option.value}
+                          label={option.label}
+                          icon={option.icon}
+                          className={cn((i || useAll) && 'mt-1')}
+                          selected={selected?.includes(option.value)}
+                        />
+                      ),
+                  )}
+                </Group>
+              )}
+            </CommandPrimitive.List>
+          </CommandPrimitive>
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
+    </PopoverPrimitive.Root>
   )
 }
