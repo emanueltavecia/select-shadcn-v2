@@ -8,3 +8,31 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
+
+#command {
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 0;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #2c3e5090;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #34495e;
+  }
+}
