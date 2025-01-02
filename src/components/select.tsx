@@ -151,7 +151,7 @@ export function Select({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start" id="command">
+      <PopoverContent className="w-[300px] p-0" align="start" id="select">
         <Command>
           {searchPlaceholder && (
             <CommandInput placeholder={searchPlaceholder} />

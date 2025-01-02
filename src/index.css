@@ -21,7 +21,7 @@
   }
 }
 
-#command {
+#select {
   ::-webkit-scrollbar {
     width: 5px;
     height: 0;
