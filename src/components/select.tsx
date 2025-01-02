@@ -41,6 +41,7 @@ export interface SelectProps {
   allowNoSelection?: boolean
   triggerDescriptionSeparator?: string
   triggerDescriptionLastSeparator?: string
+  selectWidth?: number
 }
 
 export function Select({
@@ -61,6 +62,7 @@ export function Select({
   allowNoSelection = true,
   triggerDescriptionSeparator = ', ',
   triggerDescriptionLastSeparator,
+  selectWidth = 300,
 }: SelectProps) {
   const [open, setOpen] = useState(false)
 
@@ -157,7 +159,12 @@ export function Select({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start" id="select">
+      <PopoverContent
+        className="p-0"
+        align="start"
+        id="select"
+        style={{ width: selectWidth }}
+      >
         <Command>
           {searchPlaceholder && (
             <CommandInput placeholder={searchPlaceholder} />
