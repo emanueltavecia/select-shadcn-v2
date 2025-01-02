@@ -26,6 +26,46 @@ export type OptionsGrouped<T = unknown> = {
   options: Option<T>[]
 }
 
+interface TriggerButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  noSelectionClassName?: string
+  noSelectionStyle?: React.CSSProperties
+}
+
+interface TriggerTextProps extends React.HTMLAttributes<HTMLSpanElement> {
+  noSelectionClassName?: string
+  noSelectionStyle?: React.CSSProperties
+}
+
+interface ClearButtonProps extends React.HTMLAttributes<HTMLSpanElement> {
+  iconProps?: React.ComponentProps<typeof X>
+}
+
+interface SearchContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  inputProps?: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
+  iconProps?: React.ComponentProps<typeof Search>
+}
+
+interface ListProps extends React.HTMLAttributes<HTMLDivElement> {
+  emptyMessageProps?: React.HTMLAttributes<HTMLDivElement>
+}
+
+interface GroupProps
+  extends ComponentPropsWithoutRef<typeof CommandPrimitive.Group> {
+  notFirstClassName?: string
+}
+
+interface ItemProps
+  extends Omit<
+    ComponentPropsWithoutRef<typeof CommandPrimitive.Item>,
+    'selected'
+  > {
+  selectedClassName?: string
+  selectedStyle?: React.CSSProperties
+  checkIconProps?: React.ComponentProps<typeof Check>
+  itemSpacingClassName?: string
+}
+
 export interface SelectProps {
   options: (Option | OptionsGrouped)[]
   selected: string[] | undefined
@@ -48,6 +88,18 @@ export interface SelectProps {
   selectWidth?: number
   animate?: boolean
   useShadcnStyle?: boolean
+
+  triggerButtonProps?: TriggerButtonProps
+  triggerTextProps?: TriggerTextProps
+  clearButtonProps?: ClearButtonProps
+  popoverContentProps?: ComponentPropsWithoutRef<
+    typeof PopoverPrimitive.Content
+  >
+  commandProps?: ComponentPropsWithoutRef<typeof CommandPrimitive>
+  searchContainerProps?: SearchContainerProps
+  listProps?: ListProps
+  groupProps?: GroupProps
+  itemProps?: ItemProps
 }
 
 export function Select({
@@ -72,6 +124,16 @@ export function Select({
   selectWidth = 300,
   animate = true,
   useShadcnStyle = true,
+
+  triggerButtonProps,
+  triggerTextProps,
+  clearButtonProps,
+  popoverContentProps,
+  commandProps,
+  searchContainerProps,
+  listProps,
+  groupProps,
+  itemProps,
 }: SelectProps) {
   const [open, setOpen] = useState(false)
 
@@ -151,10 +213,7 @@ export function Select({
     setOpen(false)
   }
 
-  const Group = ({
-    className,
-    ...props
-  }: ComponentPropsWithoutRef<typeof CommandPrimitive.Group>) => (
+  const Group = ({ className, ...props }: GroupProps) => (
     <CommandPrimitive.Group
       className={cn(
         useShadcnStyle &&
@@ -171,9 +230,14 @@ export function Select({
     icon,
     className,
     selected,
+    selectedClassName,
+    selectedStyle,
+    checkIconProps,
+    itemSpacingClassName,
+    style,
     ...props
   }: Option &
-    ComponentPropsWithoutRef<typeof CommandPrimitive.Item> & {
+    ItemProps & {
       selected: boolean | undefined
     }) => (
     <CommandPrimitive.Item
@@ -184,15 +248,24 @@ export function Select({
         'flex select-none',
         useShadcnStyle &&
           'relative cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-all duration-100 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 data-[disabled=true]:opacity-50 dark:data-[selected=true]:bg-gray-900/70 dark:data-[selected=true]:text-gray-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
-        selected && 'bg-gray-200/70 dark:bg-gray-900',
+        selected &&
+          (useShadcnStyle
+            ? 'bg-gray-200/70 dark:bg-gray-900'
+            : selectedClassName),
+        itemSpacingClassName,
         className,
       )}
+      style={{
+        ...(selected ? selectedStyle : {}),
+        ...style,
+      }}
       {...props}
     >
       {icon}
       <span className="w-full text-left">{label}</span>
       <Check
         className={cn('h-4 w-4', selected ? 'opacity-100' : 'opacity-0')}
+        {...checkIconProps}
       />
     </CommandPrimitive.Item>
   )
@@ -203,6 +276,7 @@ export function Select({
       label={allDescription}
       icon={allIcon}
       selected={isAllSelected}
+      {...itemProps}
     />
   )
 
@@ -218,19 +292,50 @@ export function Select({
             useShadcnStyle &&
               'whitespace-nowrap rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm font-normal shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/50 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
             !selected?.length &&
-              'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+              (useShadcnStyle
+                ? 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                : triggerButtonProps?.noSelectionClassName),
+            triggerButtonProps?.className,
           )}
+          style={{
+            ...(!selected?.length ? triggerButtonProps?.noSelectionStyle : {}),
+            ...triggerButtonProps?.style,
+          }}
+          {...triggerButtonProps}
         >
           {selectIcon}
-          <span className="w-full overflow-hidden text-ellipsis text-nowrap text-left">
+          <span
+            className={cn(
+              'w-full overflow-hidden text-ellipsis text-nowrap text-left',
+              triggerTextProps?.className,
+              !selected?.length && triggerTextProps?.noSelectionClassName,
+            )}
+            style={{
+              ...(!selected?.length ? triggerTextProps?.noSelectionStyle : {}),
+              ...triggerTextProps?.style,
+            }}
+            {...triggerTextProps}
+          >
             {getTriggerDescription()}
           </span>
           {selected?.length && useClear ? (
             <span
               onClick={handleClear}
-              className="p-0 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 [&_svg]:size-3.5"
+              className={cn(
+                useShadcnStyle &&
+                  'p-0 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 [&_svg]:size-3.5',
+                clearButtonProps?.className,
+              )}
+              style={clearButtonProps?.style}
+              {...clearButtonProps}
             >
-              <X className="mr-px shrink-0" />
+              <X
+                className={cn(
+                  'mr-px shrink-0',
+                  clearButtonProps?.iconProps?.className,
+                )}
+                {...clearButtonProps?.iconProps}
+              />
             </span>
           ) : (
             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
@@ -245,51 +350,88 @@ export function Select({
               'z-50 rounded-md border border-gray-200 bg-white p-0 text-gray-950 shadow-md outline-none dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50',
             animate &&
               'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+            popoverContentProps?.className,
           )}
+          style={{
+            width: selectWidth,
+            ...popoverContentProps?.style,
+          }}
           align="start"
           sideOffset={4}
           id="select"
-          style={{ width: selectWidth }}
+          {...popoverContentProps}
         >
           <CommandPrimitive
             className={cn(
               useShadcnStyle &&
                 'flex h-full w-full flex-col overflow-hidden rounded-md bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50',
+              commandProps?.className,
             )}
+            {...commandProps}
           >
             {useSearch && (
               <div
-                className="flex items-center border-b px-3 dark:border-gray-800"
+                className={cn(
+                  'flex items-center border-b px-3 dark:border-gray-800',
+                  searchContainerProps?.className,
+                )}
+                style={searchContainerProps?.style}
                 // eslint-disable-next-line react/no-unknown-property
                 cmdk-input-wrapper=""
+                {...searchContainerProps}
               >
-                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                <Search
+                  className={cn(
+                    'mr-2 h-4 w-4 shrink-0 opacity-50',
+                    searchContainerProps?.iconProps?.className,
+                  )}
+                  {...searchContainerProps?.iconProps}
+                />
                 <CommandPrimitive.Input
                   placeholder={searchPlaceholder}
                   className={cn(
                     useShadcnStyle &&
                       'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
+                    searchContainerProps?.inputProps?.className,
                   )}
+                  {...searchContainerProps?.inputProps}
                 />
               </div>
             )}
 
             <CommandPrimitive.List
-              className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden')}
+              className={cn(
+                'max-h-[300px] overflow-y-auto overflow-x-hidden',
+                listProps?.className,
+              )}
+              style={listProps?.style}
+              {...listProps}
             >
-              <CommandPrimitive.Empty className="pb-5 pt-6 text-center text-sm">
+              <CommandPrimitive.Empty
+                className={cn(
+                  'pb-5 pt-6 text-center text-sm',
+                  listProps?.emptyMessageProps?.className,
+                )}
+                style={listProps?.emptyMessageProps?.style}
+                {...listProps?.emptyMessageProps}
+              >
                 {emptyMessage}
               </CommandPrimitive.Empty>
 
               {options.every((option) => 'groupName' in option) ? (
                 <>
-                  {useAll && <Group>{allOption}</Group>}
+                  {useAll && <Group {...groupProps}>{allOption}</Group>}
 
                   {options.map((option, i) => (
                     <Group
                       key={i}
                       heading={option.groupName}
-                      className={cn(!i && 'pt-0')}
+                      className={cn(
+                        !i && 'pt-0',
+                        groupProps?.className,
+                        !i && groupProps?.notFirstClassName,
+                      )}
+                      {...groupProps}
                     >
                       {option.options.map((groupedOption, i) => (
                         <Item
@@ -297,15 +439,16 @@ export function Select({
                           value={groupedOption.value}
                           label={groupedOption.label}
                           icon={groupedOption.icon}
-                          className={cn((i || useAll) && 'mt-1')}
+                          itemSpacingClassName={cn((i || useAll) && 'mt-1')}
                           selected={selected?.includes(groupedOption.value)}
+                          {...itemProps}
                         />
                       ))}
                     </Group>
                   ))}
                 </>
               ) : (
-                <Group>
+                <Group {...groupProps}>
                   {useAll && allOption}
 
                   {options.map(
@@ -316,8 +459,9 @@ export function Select({
                           value={option.value}
                           label={option.label}
                           icon={option.icon}
-                          className={cn((i || useAll) && 'mt-1')}
+                          itemSpacingClassName={cn((i || useAll) && 'mt-1')}
                           selected={selected?.includes(option.value)}
+                          {...itemProps}
                         />
                       ),
                   )}
