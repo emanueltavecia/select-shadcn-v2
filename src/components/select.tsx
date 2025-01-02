@@ -102,6 +102,45 @@ export interface SelectProps {
   itemProps?: ItemProps
 }
 
+/**
+ * A custom Select component that supports single and multiple selections,
+ * optional search functionality, and various customization options.
+ *
+ * @param {Object} props - The properties for the Select component.
+ * @param {Array} props.options - The options to display in the select dropdown.
+ * @param {Array} props.selected - The currently selected options.
+ * @param {Function} props.onSelect - Callback function to handle selection changes.
+ * @param {Function} [props.setIsAllSelected] - Callback function to set the "all selected" state.
+ * @param {boolean} [props.multiple] - Whether multiple selections are allowed.
+ * @param {boolean} [props.useClear] - Whether to show a clear button.
+ * @param {boolean} [props.useAll] - Whether to include an "All" option.
+ * @param {string} [props.allDescription='Select All'] - Description for the "All" option.
+ * @param {string} [props.allSelectedDescription] - Description when all options are selected.
+ * @param {ReactNode} [props.allIcon] - Icon for the "All" option.
+ * @param {ReactNode} [props.selectIcon] - Icon for the select trigger button.
+ * @param {boolean} [props.useSearch] - Whether to include a search input.
+ * @param {string} [props.searchPlaceholder] - Placeholder text for the search input.
+ * @param {string} [props.emptyMessage='No options found'] - Message to display when no options are found.
+ * @param {string} [props.placeholder='Select...'] - Placeholder text for the select trigger button.
+ * @param {boolean} [props.allowNoSelection=true] - Whether to allow no selection.
+ * @param {string} [props.triggerDescriptionSeparator=', '] - Separator for multiple selected options.
+ * @param {string} [props.triggerDescriptionLastSeparator] - Separator for the last selected option.
+ * @param {number} [props.selectWidth=300] - Width of the select dropdown.
+ * @param {boolean} [props.animate=true] - Whether to animate the dropdown.
+ * @param {boolean} [props.useShadcnStyle=true] - Whether to use Shadcn styles.
+ * @param {Object} [props.triggerButtonProps] - Additional props for the trigger button.
+ * @param {Object} [props.triggerTextProps] - Additional props for the trigger text.
+ * @param {Object} [props.clearButtonProps] - Additional props for the clear button.
+ * @param {Object} [props.popoverContentProps] - Additional props for the popover content.
+ * @param {Object} [props.commandProps] - Additional props for the command component.
+ * @param {Object} [props.searchContainerProps] - Additional props for the search container.
+ * @param {Object} [props.listProps] - Additional props for the list component.
+ * @param {Object} [props.groupProps] - Additional props for the group component.
+ * @param {Object} [props.itemProps] - Additional props for the item component.
+ *
+ * @returns {JSX.Element} The rendered Select component.
+ */
+
 export function Select({
   options,
   selected,
