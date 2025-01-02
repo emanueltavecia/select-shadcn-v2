@@ -22,7 +22,7 @@ export interface Option {
   label: string
 }
 
-export interface SelectMultipleProps {
+export interface SelectProps {
   options: Option[]
   selected: string[] | undefined
   onSelect: (value: string[]) => void
@@ -56,7 +56,7 @@ export function Select({
   allowNoSelection = true,
   triggerDescriptionSeparator = ', ',
   triggerDescriptionLastSeparator,
-}: SelectMultipleProps) {
+}: SelectProps) {
   const [open, setOpen] = useState(false)
 
   const isAllSelected: boolean = useMemo(() => {
