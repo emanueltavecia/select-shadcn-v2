@@ -10,10 +10,10 @@ import {
 } from 'react'
 
 import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { clsx, type ClassValue } from 'clsx'
 import { Command as CommandPrimitive } from 'cmdk'
 import { Check, ChevronDown, X, Search } from 'lucide-react'
-
-import { cn } from '../lib/utils'
+import { twMerge } from 'tailwind-merge'
 
 export type Option<T = unknown> = T & {
   value: string
@@ -100,6 +100,10 @@ export interface SelectProps {
   listProps?: ListProps
   groupProps?: GroupProps
   itemProps?: ItemProps
+}
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
 
 /**
