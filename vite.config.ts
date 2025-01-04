@@ -6,11 +6,11 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
-      include: ['src'], // Inclua o diretório correto
-      outDir: 'dist', // Certifique-se de que os arquivos gerados sejam colocados no local certo
+      include: ['src'],
+      outDir: 'dist',
       staticImport: true,
-      rollupTypes: true, // Garante que tipos sejam mesclados ao usar o Rollup
-      insertTypesEntry: true, // Adiciona a entrada "types" no package.json
+      rollupTypes: true,
+      insertTypesEntry: true,
     }),
   ],
   esbuild: {
