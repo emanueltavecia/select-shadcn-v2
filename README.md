@@ -35,6 +35,16 @@ The component can be added to your project in two ways:
 npm i select-shadcn-v2
 ```
 
+#### Important:
+If you want to use the default styles provided with Tailwind CSS, ensure you add the following line to your `tailwind.config.js` file:
+
+```javascript
+content: [
+  // Other paths...
+  './node_modules/select-shadcn-v2/dist/**/*.{js,ts,jsx,tsx}',
+]
+```
+
 ### Option 2: Copy the Component
 
 Copy the `Select` component from `src/components/select.tsx` and include it in your project. Ensure you install the required dependencies:
