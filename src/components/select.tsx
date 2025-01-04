@@ -258,12 +258,12 @@ export function Select({
 
   const Group = ({ className, ...props }: GroupProps) => (
     <CommandPrimitive.Group
+      {...props}
       className={cn(
         useShadcnStyle &&
           'overflow-hidden p-1 text-gray-950 dark:text-gray-50 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 dark:[&_[cmdk-group-heading]]:text-gray-400',
         className,
       )}
-      {...props}
     />
   )
 
@@ -287,6 +287,7 @@ export function Select({
       key={value}
       value={`${label} ${value}`}
       onSelect={() => handleSelect(value)}
+      {...props}
       className={cn(
         'flex select-none',
         useShadcnStyle &&
@@ -302,13 +303,12 @@ export function Select({
         ...(selected ? selectedStyle : {}),
         ...style,
       }}
-      {...props}
     >
       {icon}
       <span className="w-full text-left">{label}</span>
       <Check
-        className={cn('h-4 w-4', selected ? 'opacity-100' : 'opacity-0')}
         {...checkIconProps}
+        className={cn('h-4 w-4', selected ? 'opacity-100' : 'opacity-0')}
       />
     </CommandPrimitive.Item>
   )
@@ -330,6 +330,7 @@ export function Select({
           role="combobox"
           aria-expanded={open}
           aria-controls="select"
+          {...triggerButtonProps}
           className={cn(
             'flex h-9 w-full items-center justify-center gap-2',
             useShadcnStyle &&
@@ -344,10 +345,10 @@ export function Select({
             ...(!selected?.length ? triggerButtonProps?.noSelectionStyle : {}),
             ...triggerButtonProps?.style,
           }}
-          {...triggerButtonProps}
         >
           {selectIcon}
           <span
+            {...triggerTextProps}
             className={cn(
               'w-full overflow-hidden text-ellipsis text-nowrap text-left',
               triggerTextProps?.className,
@@ -357,27 +358,26 @@ export function Select({
               ...(!selected?.length ? triggerTextProps?.noSelectionStyle : {}),
               ...triggerTextProps?.style,
             }}
-            {...triggerTextProps}
           >
             {getTriggerDescription()}
           </span>
           {selected?.length && useClear ? (
             <span
               onClick={handleClear}
+              {...clearButtonProps}
               className={cn(
                 useShadcnStyle &&
                   'p-0 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 [&_svg]:size-3.5',
                 clearButtonProps?.className,
               )}
               style={clearButtonProps?.style}
-              {...clearButtonProps}
             >
               <X
+                {...clearButtonProps?.iconProps}
                 className={cn(
                   'mr-px shrink-0',
                   clearButtonProps?.iconProps?.className,
                 )}
-                {...clearButtonProps?.iconProps}
               />
             </span>
           ) : (
@@ -388,6 +388,10 @@ export function Select({
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
+          align="start"
+          sideOffset={4}
+          id="select"
+          {...popoverContentProps}
           className={cn(
             useShadcnStyle &&
               'z-50 rounded-md border border-gray-200 bg-white p-0 text-gray-950 shadow-md outline-none dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50',
@@ -399,21 +403,18 @@ export function Select({
             width: selectWidth,
             ...popoverContentProps?.style,
           }}
-          align="start"
-          sideOffset={4}
-          id="select"
-          {...popoverContentProps}
         >
           <CommandPrimitive
+            {...commandProps}
             className={cn(
               useShadcnStyle &&
                 'flex h-full w-full flex-col overflow-hidden rounded-md bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50',
               commandProps?.className,
             )}
-            {...commandProps}
           >
             {useSearch && (
               <div
+                {...searchContainerProps}
                 className={cn(
                   'flex items-center border-b px-3 dark:border-gray-800',
                   searchContainerProps?.className,
@@ -421,42 +422,41 @@ export function Select({
                 style={searchContainerProps?.style}
                 // eslint-disable-next-line react/no-unknown-property
                 cmdk-input-wrapper=""
-                {...searchContainerProps}
               >
                 <Search
+                  {...searchContainerProps?.iconProps}
                   className={cn(
                     'mr-2 h-4 w-4 shrink-0 opacity-50',
                     searchContainerProps?.iconProps?.className,
                   )}
-                  {...searchContainerProps?.iconProps}
                 />
                 <CommandPrimitive.Input
+                  {...searchContainerProps?.inputProps}
                   placeholder={searchPlaceholder}
                   className={cn(
                     useShadcnStyle &&
                       'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
                     searchContainerProps?.inputProps?.className,
                   )}
-                  {...searchContainerProps?.inputProps}
                 />
               </div>
             )}
 
             <CommandPrimitive.List
+              {...listProps}
               className={cn(
                 'max-h-[300px] overflow-y-auto overflow-x-hidden',
                 listProps?.className,
               )}
               style={listProps?.style}
-              {...listProps}
             >
               <CommandPrimitive.Empty
+                {...listProps?.emptyMessageProps}
                 className={cn(
                   'pb-5 pt-6 text-center text-sm',
                   listProps?.emptyMessageProps?.className,
                 )}
                 style={listProps?.emptyMessageProps?.style}
-                {...listProps?.emptyMessageProps}
               >
                 {emptyMessage}
               </CommandPrimitive.Empty>
@@ -467,6 +467,7 @@ export function Select({
 
                   {options.map((option, i) => (
                     <Group
+                      {...groupProps}
                       key={i}
                       heading={option.groupName}
                       className={cn(
@@ -474,7 +475,6 @@ export function Select({
                         groupProps?.className,
                         !i && groupProps?.notFirstClassName,
                       )}
-                      {...groupProps}
                     >
                       {option.options.map((groupedOption, i) => (
                         <Item
